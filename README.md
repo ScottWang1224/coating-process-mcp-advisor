@@ -1,79 +1,129 @@
 # Coating Process MCP Advisor
 
-Simulation-only MCP tools for coating process advisory workflows.
+一個以 **FastMCP** 建立的塗佈製程模擬輔助工具。  
+它提供可重複、可測試的 Python 計算工具，讓 Codex、Claude Code 或其他支援 MCP 的 Agent 可以透過 tool call 協助判斷塗佈製程中的基礎數值問題。
 
-This project provides deterministic Python calculation tools and a FastMCP stdio server that an
-Agent client such as Codex or Claude Code can call when answering simulated coating process
-questions. It is not production guidance and must not be used with proprietary formulas or real
-factory control decisions.
+> 注意：本專案僅供 **simulation-only** 的示範與輔助計算，不是實際生產操作指引。
 
-## Features
+## 專案目標
 
-- Volume conversion: `mL`, `L`, `m3`
-- Temperature conversion: `C`, `K`, `F`
-- Process range status: `normal`, `low`, `high`
-- Solvent addition estimate for concentration reduction
-- Line speed estimate for target coating thickness
-- Qualitative viscosity and temperature risk classification
-- Pytest coverage for all MVP tools
-- Example scenarios and deterministic CLI demo
+這個專案的目標不是取代製程工程師，而是把常見的基礎計算與範圍判斷交給 MCP tools，讓 Agent 回答時不要憑空推論或手算錯誤。
+
+目前適合處理的問題類型：
+
+- 黏度、固含、膜厚等參數是否超出上下限
+- 體積與溫度單位換算
+- 固含偏高時，估算需要加入多少溶劑
+- 膜厚偏厚或偏薄時，估算線速調整方向
+- 黏度異常時，根據溫度情境做初步風險分類
+
+目前不處理：
+
+- 真實配方建議
+- 真實產線操作決策
+- 專有製程資料
+- 缺陷診斷，例如縮孔、條紋、氣泡、橘皮
+- RAG、PDF、OCR、資料庫或 Web UI
+
+## 功能
+
+- 體積換算：`mL`、`L`、`m3`
+- 溫度換算：`C`、`K`、`F`
+- 製程範圍判斷：`normal`、`low`、`high`
+- 溶劑添加量估算
+- 目標膜厚對應線速估算
+- 黏度與溫度風險分類
+- pytest 測試
+- YAML 範例情境與 CLI demo
 - FastMCP stdio server
-- Codex, Claude Code, generic MCP config examples
+- Codex / Claude Code / generic MCP 設定範例
+- Dockerfile
 
-## Setup
+## 安裝
 
-```bash
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install ".[dev]"
+建議使用 Python 3.11 以上。
+
+Windows 若專案路徑包含中文或非 ASCII 字元，建議把虛擬環境建立在純英文路徑，例如 `C:\venvs\coating-mcp`。
+
+```powershell
+$env:PYTHONNOUSERSITE="1"
+$env:PYTHONUTF8="1"
+py -3.11 -X utf8 -m venv C:\venvs\coating-mcp
+C:\venvs\coating-mcp\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install ".[dev]"
 ```
 
-On Windows paths containing non-ASCII characters, prefer a virtual environment in an ASCII-only
-path such as `C:\venvs\coating-mcp` and avoid editable installs. Editable installs create a `.pth`
-file that may fail to decode under CP950.
+請避免在中文路徑下使用 editable install：
 
-## Run Tests
-
-```bash
-pytest
+```powershell
+python -m pip install -e ".[dev]"
 ```
 
-## Run Example Demo
+editable install 會產生 `.pth` 檔，在 Windows CP950 環境中可能造成解碼錯誤。
 
-```bash
+## 測試
+
+```powershell
+python -m pytest
+```
+
+預期結果：
+
+```text
+18 passed
+```
+
+## 執行範例情境
+
+```powershell
 python -m coating_mcp.cli.run_examples
 ```
 
-## Run MCP Server
+或使用安裝後的 entrypoint：
 
-```bash
+```powershell
+coating-mcp-examples
+```
+
+目前範例包含：
+
+- 固含偏高，估算溶劑添加量
+- 膜厚偏厚，估算建議線速
+- 黏度偏高且溫度偏低，判斷風險
+
+## 啟動 MCP Server
+
+```powershell
 coating-mcp
 ```
 
-The MCP server is configured for agent-friendly stdio startup:
+MCP server 已針對 Agent stdio 使用情境做過設定：
 
-- server banner disabled
-- log level set to `WARNING`
-- rich logging disabled by default
-- no debug `print()` calls from the stdio server
+- 關閉 FastMCP banner
+- log level 設為 `WARNING`
+- 預設關閉 rich logging
+- server 啟動時不使用 `print()` 輸出 debug 訊息
 
-Do not add `print()` debugging to `src/coating_mcp/server.py`; stdout is reserved for MCP
-JSON-RPC messages. Use stderr logging or files for diagnostics.
+請不要在 `src/coating_mcp/server.py` 裡加入 `print()` debug。  
+stdio MCP server 的 stdout 必須保留給 MCP JSON-RPC protocol；診斷訊息應走 stderr logging 或檔案。
 
 ## MCP Tools
 
-| Tool | Purpose |
+| Tool | 用途 |
 | --- | --- |
-| `convert_volume` | Convert volume between `mL`, `L`, and `m3`. |
-| `convert_temperature` | Convert temperature between `C`, `K`, and `F`. |
-| `check_process_range` | Check whether a process parameter is normal, low, or high. |
-| `calculate_solvent_addition` | Estimate solvent needed to lower concentration. |
-| `estimate_line_speed_for_target_thickness` | Estimate line speed for a target thickness. |
-| `estimate_viscosity_temperature_risk` | Classify qualitative viscosity risk using temperature context. |
+| `convert_volume` | 在 `mL`、`L`、`m3` 之間換算體積。 |
+| `convert_temperature` | 在 `C`、`K`、`F` 之間換算溫度。 |
+| `check_process_range` | 判斷製程參數是 `normal`、`low` 或 `high`。 |
+| `calculate_solvent_addition` | 估算降低濃度所需添加的溶劑量。 |
+| `estimate_line_speed_for_target_thickness` | 依目標膜厚估算建議線速。 |
+| `estimate_viscosity_temperature_risk` | 依黏度範圍與溫度情境做定性風險分類。 |
 
-## Codex MCP Example
+## Codex MCP 設定
 
-See [clients/codex/config.example.toml](clients/codex/config.example.toml).
+完整範例請看 [clients/codex/config.example.toml](clients/codex/config.example.toml)。
+
+若 `coating-mcp` 已在 PATH 中，可以使用：
 
 ```toml
 [mcp_servers.coating-process]
@@ -89,7 +139,7 @@ FASTMCP_ENABLE_RICH_LOGGING = "false"
 FASTMCP_LOG_LEVEL = "WARNING"
 ```
 
-Windows virtual environment example:
+Windows venv 建議使用絕對路徑：
 
 ```toml
 [mcp_servers.coating-process]
@@ -106,19 +156,63 @@ FASTMCP_ENABLE_RICH_LOGGING = "false"
 FASTMCP_LOG_LEVEL = "WARNING"
 ```
 
-Check your Codex MCP setup with `codex mcp --help`, `codex mcp list` if available in your
-installed Codex version, or `/mcp` inside the Codex TUI.
+設定後重啟 Codex，並用以下方式檢查 MCP server：
 
-## Claude Code MCP Example
+```powershell
+codex mcp --help
+codex mcp list
+```
 
-See [clients/claude-code/mcp.example.json](clients/claude-code/mcp.example.json).
+在 Codex TUI 內也可以使用：
+
+```text
+/mcp
+```
+
+測試提問範例：
+
+```text
+目前塗液黏度 850 cP，規格範圍是 500 到 700 cP。請用 coating-process MCP tool 判斷狀態與偏差。
+```
+
+## Claude Code MCP 設定
+
+完整範例請看 [clients/claude-code/mcp.example.json](clients/claude-code/mcp.example.json)。
 
 ```json
 {
   "mcpServers": {
     "coating-process": {
-      "command": "python",
-      "args": ["-m", "coating_mcp.server"]
+      "command": "coating-mcp",
+      "args": [],
+      "env": {
+        "PYTHONUTF8": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "FASTMCP_SHOW_SERVER_BANNER": "false",
+        "FASTMCP_ENABLE_RICH_LOGGING": "false",
+        "FASTMCP_LOG_LEVEL": "WARNING"
+      }
+    }
+  }
+}
+```
+
+Windows venv 範例：
+
+```json
+{
+  "mcpServers": {
+    "coating-process": {
+      "command": "C:\\venvs\\coating-mcp\\Scripts\\coating-mcp.exe",
+      "args": [],
+      "env": {
+        "PYTHONUTF8": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONNOUSERSITE": "1",
+        "FASTMCP_SHOW_SERVER_BANNER": "false",
+        "FASTMCP_ENABLE_RICH_LOGGING": "false",
+        "FASTMCP_LOG_LEVEL": "WARNING"
+      }
     }
   }
 }
@@ -131,9 +225,14 @@ docker build -t coating-process-mcp:latest .
 docker run --rm -i coating-process-mcp:latest
 ```
 
-## Safety Notes
+## 安全與限制
 
-- All outputs are simulation-only.
-- Do not infer missing physical properties.
-- Do not use real company data, real machine names, or proprietary formulas.
-- Confirm actual process changes with qualified process engineers and approved procedures.
+- 所有輸出都是 simulation-only。
+- 不推論缺失的物性資料，例如密度、蒸發速率、比熱、剪切黏度曲線。
+- 不使用真實公司資料、真實機台名稱或專有配方。
+- 不提供未經驗證的實際生產操作建議。
+- 實際製程調整仍需由合格工程師與正式 SOP 確認。
+
+## 授權
+
+目前尚未指定授權條款。若要公開給其他人使用，建議在發布前新增 `LICENSE`。
