@@ -1,0 +1,22 @@
+{
+  "name": "coating-process",
+  "transport": "stdio",
+  "command": "coating-mcp",
+  "args": [],
+  "env": {
+    "PYTHONUTF8": "1",
+    "PYTHONIOENCODING": "utf-8",
+    "FASTMCP_SHOW_SERVER_BANNER": "false",
+    "FASTMCP_ENABLE_RICH_LOGGING": "false",
+    "FASTMCP_LOG_LEVEL": "WARNING"
+  },
+  "docker": {
+    "command": "docker",
+    "args": [
+      "run",
+      "--rm",
+      "-i",
+      "coating-process-mcp:latest"
+    ]
+  }
+}

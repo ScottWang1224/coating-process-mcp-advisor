@@ -1,0 +1,20 @@
+high_solid_content_001:
+  process_range:
+    status: "high"
+    deviation: 4
+  solvent_adjustment:
+    final_volume: 945.45
+    solvent_to_add: 145.45
+
+coating_thickness_high_001:
+  coating_thickness:
+    recommended_speed: 13.33
+
+viscosity_high_001:
+  process_range:
+    status: "high"
+    deviation: 150
+  viscosity_risk:
+    status: "high"
+    risk_level: "medium"
+

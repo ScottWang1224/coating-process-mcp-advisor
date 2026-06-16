@@ -1,0 +1,36 @@
+{
+  "mcpServers": {
+    "coating-process": {
+      "command": "coating-mcp",
+      "args": [],
+      "env": {
+        "PYTHONUTF8": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "FASTMCP_SHOW_SERVER_BANNER": "false",
+        "FASTMCP_ENABLE_RICH_LOGGING": "false",
+        "FASTMCP_LOG_LEVEL": "WARNING"
+      }
+    },
+    "coating-process-windows-venv": {
+      "command": "C:\\venvs\\coating-mcp\\Scripts\\coating-mcp.exe",
+      "args": [],
+      "env": {
+        "PYTHONUTF8": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONNOUSERSITE": "1",
+        "FASTMCP_SHOW_SERVER_BANNER": "false",
+        "FASTMCP_ENABLE_RICH_LOGGING": "false",
+        "FASTMCP_LOG_LEVEL": "WARNING"
+      }
+    },
+    "coating-process-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "coating-process-mcp:latest"
+      ]
+    }
+  }
+}

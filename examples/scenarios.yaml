@@ -1,0 +1,35 @@
+- id: high_solid_content_001
+  title: "High solid content dilution check"
+  level: 1
+  user_prompt: "Tank T-01 has 800 L coating liquid at 26 wt%. Target is 22 wt%. Check range and estimate solvent addition."
+  expected_tools:
+    - check_process_range
+    - calculate_solvent_addition
+  expected_result:
+    status: "high"
+    solvent_to_add: 145.45
+    final_volume: 945.45
+    unit: "L"
+
+- id: coating_thickness_high_001
+  title: "Coating thickness above target"
+  level: 2
+  user_prompt: "Current coating thickness is 8 um, target is 6 um, and current line speed is 10 m/min. Estimate recommended speed."
+  expected_tools:
+    - estimate_line_speed_for_target_thickness
+  expected_result:
+    recommended_speed: 13.33
+    unit: "m/min"
+
+- id: viscosity_high_001
+  title: "High viscosity with low temperature"
+  level: 2
+  user_prompt: "Current viscosity is 850 cP, range is 500-700 cP, current temperature is 20 C, standard temperature is 25 C. Estimate risk."
+  expected_tools:
+    - check_process_range
+    - estimate_viscosity_temperature_risk
+  expected_result:
+    status: "high"
+    risk_level: "medium"
+    possible_reason_contains: "temperature"
+

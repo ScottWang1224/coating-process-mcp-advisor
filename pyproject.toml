@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "coating-process-mcp-advisor"
+version = "0.1.0"
+description = "Simulation-only MCP tools for coating process advisory calculations."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastmcp>=2.0.0",
+  "pydantic>=2.7.0",
+  "pyyaml>=6.0.0",
+]
+
+[project.scripts]
+coating-mcp = "coating_mcp.server:main"
+coating-mcp-examples = "coating_mcp.cli.run_examples:main"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "ruff>=0.5.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/coating_mcp"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

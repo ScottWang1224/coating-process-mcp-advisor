@@ -1,0 +1,41 @@
+# Personal planning and local-only docs
+PRD.md
+docs/user_guide.html
+docs/project_progress.md
+
+# Local Codex/user config
+.codex/
+.agents/
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache and test artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+!.vscode/settings.example.json
+
